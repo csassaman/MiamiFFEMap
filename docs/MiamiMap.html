@@ -100,26 +100,38 @@
 				accessToken: 'your.mapbox.access.token'
 			}).addTo(map);
 
-		var geojson;
+		var MiamiFFE;
+		var MiamiAndrew;
 
 		function getColor(d) {
-			return d < 5 ? '#800026' :
-						d < 10  ? '#BD0026' :
-						d < 15  ? '#E31A1C' :
-						d < 20  ? '#FC4E2A' :
-						d < 25  ? '#FD8D3C' :
-						d < 30  ? '#FEB24C' :
-						d < 35  ? '#FED976' :
+			return d < 0 ? '#000000' :
+						d < 5  ? '#BD0026' :
+						d < 10  ? '#E31A1C' :
+						d < 15  ? '#FC4E2A' :
+						d < 20  ? '#FD8D3C' :
+						d < 25  ? '#FEB24C' :
+						d < 30  ? '#FED976' :
 								  '#FFEDA0' ;
 		}
 
-		function style(feature) {
+		function style_norm(feature) {
 			return {
 				fillColor: getColor(feature.properties.FFE_USE),
 				fillOpacity: 0.25,
 				weight: 2,
 				opacity: 1,
 				color: getColor(feature.properties.FFE_USE)
+				//dashArray: '3'
+				
+			};
+		}
+		function style_andrew(feature) {
+			return {
+				fillColor: getColor(-feature.properties.Andrew_IN),
+				fillOpacity: 0.25,
+				weight: 2,
+				opacity: 1,
+				color: getColor(-feature.properties.Andrew_IN)
 				//dashArray: '3'
 				
 			};
@@ -190,17 +202,28 @@
 			fillOpacity: 0.8
 		};
 
-		geojson = L.geoJson(MiamiData, {
-			style: style,
+		MiamiFFE = L.geoJson(MiamiData, {
+			style: style_norm,
 			onEachFeature: onEachFeature,
 			pointToLayer: function (feature, latlng) {
 				return L.circleMarker(latlng, geojsonMarkerOptions);
 		}
-		}).addTo(map);
+		});
+		MiamiAndrew = L.geoJson(MiamiData, {
+			style: style_andrew,
+			onEachFeature: onEachFeature,
+			pointToLayer: function (feature, latlng) {
+				return L.circleMarker(latlng, geojsonMarkerOptions);
+		}
+		});
 
-
+		var overlayControl = {
+			"MiamiFFE": MiamiFFE,
+			"Hurricane Andrew": MiamiAndrew
+		};
 		
-		
+		L.control.layers(overlayControl).addTo(map);
+/*
 		var info = L.control();
 
 		info.onAdd = function (map) {
@@ -217,37 +240,39 @@
 		};
 
 		info.addTo(map);
-		
+*/
+		var slideOutput;
+		var slider = document.getElementById("myRange");
+		var output = document.getElementById("demo");
+
+		// Update the current slider value (each time you drag the slider handle)
+		slider.oninput = function() {
+			slideOutput = this.value;
+		};
+
 		var legend = L.control({position: 'bottomright'});
 
 		legend.onAdd = function (map) {
 
 			var div = L.DomUtil.create('div', 'info legend'),
-				grades = [0,5,10,15,20,25,30],
+				grades = [-5,0,5,10,15,20,25],
 				labels = [];
-				div.innerHTML = "<h4>First Floor<br>Elevation</h4>(feet)<br>"
+				div.innerHTML = "<h4>Feet Above<br>NAVD88</h4><br />" + slideOutput + "<br />";
 
 
 			// loop through our density intervals and generate a label with a colored square for each interval
 			for (var i = 0; i < grades.length; i++) {
 				div.innerHTML +=
 					'<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
-					grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+					grades[i] + (grades[i + 1] || grades[i + 1] == 0 ? '&ndash;' + grades[i + 1] + '<br>' : '+');
 			}
-
 			return div;
 		};
 
+
 		legend.addTo(map);
 
-		var slider = document.getElementById("myRange");
-		var output = document.getElementById("demo");
-		output.innerHTML = slider.value; // Display the default slider value
 
-		// Update the current slider value (each time you drag the slider handle)
-		slider.oninput = function() {
-			output.innerHTML = this.value;
-		};
 		
 		//slider.addTo(map);
 		
