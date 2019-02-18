@@ -208,7 +208,7 @@
 			pointToLayer: function (feature, latlng) {
 				return L.circleMarker(latlng, geojsonMarkerOptions);
 		}
-		});
+		}).addTo(map);
 		MiamiAndrew = L.geoJson(MiamiData, {
 			style: style_andrew,
 			onEachFeature: onEachFeature,
@@ -240,7 +240,7 @@
 		};
 
 		info.addTo(map);
-*/
+
 		var slideOutput;
 		var slider = document.getElementById("myRange");
 		var output = document.getElementById("demo");
@@ -249,7 +249,7 @@
 		slider.oninput = function() {
 			slideOutput = this.value;
 		};
-
+*/
 		var legend = L.control({position: 'bottomright'});
 
 		legend.onAdd = function (map) {
@@ -257,7 +257,7 @@
 			var div = L.DomUtil.create('div', 'info legend'),
 				grades = [-5,0,5,10,15,20,25],
 				labels = [];
-				div.innerHTML = "<h4>Feet Above<br>NAVD88</h4><br />" + slideOutput + "<br />";
+				div.innerHTML = "<h4>Feet Above<br>NAVD88</h4>";
 
 
 			// loop through our density intervals and generate a label with a colored square for each interval
