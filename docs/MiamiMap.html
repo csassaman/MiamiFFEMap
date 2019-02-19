@@ -140,6 +140,18 @@
 			};
 		}
 
+		function style_100yr(feature) {
+			return {
+				fillColor: getColor(-feature.properties["100_IN"]),
+				fillOpacity: 0.25,
+				weight: 2,
+				opacity: 1,
+				color: getColor(-feature.properties.Andrew_IN)
+				//dashArray: '3'
+				
+			};
+		}
+
 		function highlightFeature(e) {
 			var layer = e.target;
 
@@ -170,15 +182,23 @@
 			if (feature.properties && feature.properties.FFE_USE) {
 				var FFE = feature.properties.FFE_USE;
 				var andrew = feature.properties.Andrew_92;
+				var yr100 = feature.properties["100_YR"];
 				var andrew_in;
+				var in_100yr;
 				if (andrew - FFE > 0) {
 					andrew_in = andrew - FFE;
 				} else {
 					andrew_in = 0;
 				}
-				layer.bindPopup("Building Elevation: <strong>" +
-				FFE.toFixed(2).toString() + "ft </strong><br /> Water in Building: <strong>" +
-				andrew_in.toFixed(2).toString() + "ft </strong><br /> <i>(Hurricane Andrew 1992)</i>");
+				if (yr100 - FFE > 0) {
+					in_100yr = yr100 - FFE;
+				} else {
+					in_100yr = 0;
+				}
+				layer.bindPopup("Building Elevation: <strong>" + FFE.toFixed(2).toString() + 
+					"ft </strong><br /> Water in Building: <br /><strong>" + andrew_in.toFixed(2).toString() + 
+					"ft </strong><i>(Hurricane Andrew 1992)</i><br /> <strong>" + in_100yr.toFixed(2).toString() +
+					"ft </strong><i>(100 Year Flood)</i>");
 				layer.on('mouseover', function (e) {
             		this.openPopup();
        			});
@@ -225,12 +245,28 @@
 		}
 		});
 
+		Miami100yr = L.geoJson(MiamiData, {
+			style: style_100yr,
+			onEachFeature: onEachFeature,
+			pointToLayer: function (feature, latlng) {
+				return L.circleMarker(latlng, geojsonMarkerOptions);
+		}
+		});
+		Cutler100yr = L.geoJson(CutlerBayData, {
+			style: style_100yr,
+			onEachFeature: onEachFeature,
+			pointToLayer: function (feature, latlng) {
+				return L.circleMarker(latlng, geojsonMarkerOptions);
+		}
+		});
 		var flData = L.layerGroup([CutlerBay, MiamiFFE]).addTo(map);
 		var flAndrew = L.layerGroup([MiamiAndrew, CutlerAndrew]);
+		var fl100yr = L.layerGroup([Miami100yr, Cutler100yr]);
 
 		var overlayControl = {
 			"Normal Elevation": flData,
-			"Hurricane Andrew": flAndrew
+			"Hurricane Andrew": flAndrew,
+			"100 Year Flood": fl100yr
 		};
 		
 		L.control.layers(overlayControl).addTo(map);
