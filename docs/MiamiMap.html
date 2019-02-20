@@ -21,7 +21,7 @@
 				padding: 6px 8px;
 				font: 14px/16px Arial, Helvetica, sans-serif;
 				background: white;
-				background: rgba(255,255,255,0.8);
+				background: rgba(255, 255, 255, 0.8);
 				box-shadow: 0 0 15px rgba(0,0,0,0.2);
 				border-radius: 5px;
 		}
@@ -106,14 +106,12 @@
 		var MiamiAndrew;
 
 		function getColor(d) {
-			return d < 0 ? '#000000' :
-						d < 5  ? '#BD0026' :
-						d < 10  ? '#E31A1C' :
-						d < 15  ? '#FC4E2A' :
-						d < 20  ? '#FD8D3C' :
-						d < 25  ? '#FEB24C' :
-						d < 30  ? '#FED976' :
-								  '#FFEDA0' ;
+			return d < -4 ? "#001e7a" :
+						d < -3 ? '#0600AE' :
+						d < -2 ? '#0070C4' :
+						d < -1 ? '#00B9D3' :
+						d <  0 ? '#00FFFD' :
+								 '#b3b3b3'
 		}
 
 		function style_norm(feature) {
@@ -275,7 +273,7 @@
 		legend.onAdd = function (map) {
 
 			var div = L.DomUtil.create('div', 'info legend'),
-				grades = [-5,0,5,10,15,20,25],
+				grades = [-5,-4,-3, -2, -1, 0],
 				labels = [];
 				div.innerHTML = "<h4>Feet Above<br>NAVD88</h4>";
 
@@ -283,8 +281,8 @@
 			// loop through our density intervals and generate a label with a colored square for each interval
 			for (var i = 0; i < grades.length; i++) {
 				div.innerHTML +=
-					'<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
-					grades[i] + (grades[i + 1] || grades[i + 1] == 0 ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+					'<i style="background:' + getColor(grades[i]) + '"></i> ' +
+					grades[i] + (grades[i + 1] || grades[i + 1] == 0 ? '&ndash;' + grades[i + 1] + '<br>' : '<');
 			}
 			return div;
 		};
