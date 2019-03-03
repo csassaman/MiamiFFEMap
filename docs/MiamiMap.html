@@ -101,10 +101,6 @@
 			accessToken: 'your.mapbox.access.token'
 		}).addTo(map);
 
-		var MiamiFFE;
-		var CutlerBay;
-		var MiamiAndrew;
-
 		function getColor(d) {
 			return d < -4 ? "#001e7a" :
 						d < -3 ? '#0600AE' :
@@ -175,6 +171,7 @@
 			map.fitBounds(e.target.getBounds());
 		}
 
+		// Function to add popup to each layer and display certain values
 		function onEachFeature(feature, layer) {
     	// does this feature have a property named popupContent?
 			if (feature.properties && feature.properties.FFE_USE) {
@@ -205,7 +202,27 @@
         		});
 			}
 		}
-			
+		
+		// Function to add Elevation Certificate popup
+		function onEachFeature_EC(feature, layer) {
+			if (feature.properties && feature.properties.EC1_NAVD88) {
+				layer.bindPopup("Elevation Certificate: " + feature.properties.EC1_NAVD88.toString() + "ft");
+				layer.on('mouseover', function (e) {
+            		this.openPopup();
+       			});
+       			layer.on('mouseout', function (e) {
+            		this.closePopup();
+				});
+			} else {
+				layer.bindPopup("No Elevation Certificate");
+				layer.on('mouseover', function (e) {
+            		this.openPopup();
+       			});
+       			layer.on('mouseout', function (e) {
+					this.closePopup();
+				});
+			}
+		};
 		var geojsonMarkerOptions = {
 			radius: 8,
 			weight: 1,
@@ -213,14 +230,14 @@
 			fillOpacity: 0.8
 		};
 
-		MiamiFFE = L.geoJson(MiamiData, {
+		var MiamiFFE = L.geoJson(MiamiData, {
 			style: style_norm,
 			onEachFeature: onEachFeature,
 			pointToLayer: function (feature, latlng) {
 				return L.circleMarker(latlng, geojsonMarkerOptions);
 			}
 		});
-		CutlerBay = L.geoJson(CutlerBayData, {
+		var CutlerBay = L.geoJson(CutlerBayData, {
 			style: style_norm,
 			onEachFeature: onEachFeature,
 			pointToLayer: function (feature, latlng) {
@@ -228,19 +245,50 @@
 			}
 		});
 
-		MiamiAndrew = L.geoJson(MiamiData, {
+		var MiamiAndrew = L.geoJson(MiamiData, {
 			style: style_andrew,
 			onEachFeature: onEachFeature,
 			pointToLayer: function (feature, latlng) {
 				return L.circleMarker(latlng, geojsonMarkerOptions);
 		}
 		});
-		CutlerAndrew = L.geoJson(CutlerBayData, {
+		var CutlerAndrew = L.geoJson(CutlerBayData, {
 			style: style_andrew,
 			onEachFeature: onEachFeature,
 			pointToLayer: function (feature, latlng) {
 				return L.circleMarker(latlng, geojsonMarkerOptions);
-		}
+			}
+		});
+
+		var Miami_EC1 = L.geoJson(MiamiData, {
+			style: function (feature) {
+				return {
+					fillColor: feature.properties.EC1_NAVD88 ? "#00FF00" : "#b3b3b3",
+					fillOpacity: 0.25,
+					weight: 2,
+					opacity: 1,
+					color: feature.properties.EC1_NAVD88 ? "#00FF00" : "#b3b3b3"	
+			};
+			},
+			onEachFeature: onEachFeature_EC,
+			pointToLayer: function(feature, latlng) {
+				return L.circleMarker(latlng, geojsonMarkerOptions);
+			}
+		});
+		var CutlerBay_EC1 = L.geoJson(CutlerBayData, {
+			style: function (feature) {
+				return {
+					fillColor: feature.properties.EC1_NAVD88 ? "#00FF00" : "#b3b3b3",
+					fillOpacity: 0.25,
+					weight: 2,
+					opacity: 1,
+					color: feature.properties.EC1_NAVD88 ? "#00FF00" : "#b3b3b3"	
+			};
+			},
+			onEachFeature: onEachFeature_EC,
+			pointToLayer: function(feature, latlng) {
+				return L.circleMarker(latlng, geojsonMarkerOptions);
+			}
 		});
 
 		Miami100yr = L.geoJson(MiamiData, {
@@ -260,11 +308,13 @@
 		var flData = L.layerGroup([CutlerBay, MiamiFFE]).addTo(map);
 		var flAndrew = L.layerGroup([MiamiAndrew, CutlerAndrew]);
 		var fl100yr = L.layerGroup([Miami100yr, Cutler100yr]);
+		var fl_EC1 = L.layerGroup([Miami_EC1, CutlerBay_EC1]);
 
 		var overlayControl = {
 			"Normal Elevation": flData,
 			"Hurricane Andrew": flAndrew,
-			"100 Year Flood": fl100yr
+			"100 Year Flood": fl100yr,
+			"EC1_NAVD88": fl_EC1
 		};
 		
 		L.control.layers(overlayControl).addTo(map);
