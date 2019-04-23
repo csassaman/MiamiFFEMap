@@ -206,7 +206,7 @@
 		// Function to add Elevation Certificate popup
 		function onEachFeature_EC(feature, layer) {
 			if (feature.properties && feature.properties.EC1_NAVD88) {
-				layer.bindPopup("Elevation Certificate: <b>" + feature.properties.EC1_NAVD88.toString() + "ft</b>");
+				layer.bindPopup("Elevation Certificate: <b>" + feature.properties.EC1_NAVD88.toString() + "ft</1b>");
 				layer.on('mouseover', function (e) {
             		this.openPopup();
        			});
