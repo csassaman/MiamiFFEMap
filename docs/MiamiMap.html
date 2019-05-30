@@ -10,6 +10,10 @@
    integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw=="
    crossorigin="">
   </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="leaflet-slider.js"></script>
+  <link rel="stylesheet" href="leaflet-slider.css"/>
+
   <style>
 
 		#mapid {
@@ -41,56 +45,13 @@
 				margin-right: 8px;
 				opacity: 0.7;
 		}
-		.slidecontainer {
-			width: 250px; /* Width of the outside container */
-			height: 25px;
-			float: right;
-		}
-
-		/* The slider itself */
-		.slider {
-			-webkit-appearance: none;  /* Override default CSS styles */
-			appearance: none;
-			width: 100%; /* Full-width */
-			height: 15px; /* Specified height */
-			background: #d3d3d3; /* Grey background */
-			outline: none; /* Remove outline */
-			opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
-			-webkit-transition: .2s; /* 0.2 seconds transition on hover */
-			transition: opacity .2s;
-		}
-
-		/* Mouse-over effects */
-		.slider:hover {
-			opacity: 1; /* Fully shown on mouse-over */
-		}
-
-		/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */ 
-		.slider::-webkit-slider-thumb {
-			-webkit-appearance: none; /* Override default look */
-			appearance: none;
-			width: 25px; /* Set a specific slider handle width */
-			height: 25px; /* Slider handle height */
-			background: #424bf4; /* Green background */
-			cursor: pointer; /* Cursor on hover */
-		}
-
-		.slider::-moz-range-thumb {
-			width: 25px; /* Set a specific slider handle width */
-			height: 25px; /* Slider handle height */
-			background: #424bf4; /* Green background */
-			cursor: pointer; /* Cursor on hover */
-		}
+		
 	</style>
 </head>
 <body>
   <div id="mapid"></div>
 	<script type="text/javascript" src="MiamiData.js"></script>
 	<script type="text/javascript" src="CutlerBayData.js"></script>
-	<!--<div class="slidecontainer">
-		<input type="range" min="0" max="25" value="0" class="slider" id="myRange">
-		Move slider to adjust water level
-	</div>-->
 	
   <script>
 		var map = L.map('mapid').setView([25.6777, -80.3354], 11);
@@ -101,24 +62,38 @@
 			accessToken: 'your.mapbox.access.token'
 		}).addTo(map);
 
+		var waterLevel = 0
+
+		var slider = L.control.slider(function(level) {}, {
+			max: 20,
+			position: 'bottomleft',
+			value: 10,
+			step: 0.1,
+			size: '350px',
+			id: 'slider',
+		}).addTo(map);
+
 		function getColor(d) {
 			return d < -4 ? "#001e7a" :
 						d < -3 ? '#0600AE' :
 						d < -2 ? '#0070C4' :
 						d < -1 ? '#00B9D3' :
 						d <  0 ? '#00FFFD' :
-								 '#b3b3b3'
+								 '#b3b3b3' ;
+		}
+
+		function updateSliderValue() {
+			return slider.slider.value;
 		}
 
 		function style_norm(feature) {
 			return {
-				fillColor: getColor(feature.properties.FFE_USE),
+				fillColor: getColor(feature.properties.FFE_USE-updateSliderValue()),
 				fillOpacity: 0.25,
 				weight: 2,
 				opacity: 1,
-				color: getColor(feature.properties.FFE_USE)
+				color: getColor(feature.properties.FFE_USE-slider.options.value)
 				//dashArray: '3'
-				
 			};
 		}
 		
@@ -332,42 +307,14 @@
 			for (var i = 0; i < grades.length; i++) {
 				div.innerHTML +=
 					'<i style="background:' + getColor(grades[i]) + '"></i> ' +
-					grades[i] + (grades[i + 1] || grades[i + 1] == 0 ? '&ndash;' + grades[i + 1] + '<br>' : '<');
+					grades[i] + (grades[i + 1] || grades[i + 1] == 0 ? ' &ndash; ' + grades[i + 1] + '<br>' : '<');
 			}
 			return div;
 		};
 		legend.addTo(map);
 		
-		/*
+
 		
-		var info = L.control();
-
-		info.onAdd = function (map) {
-			this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
-			this.update();
-			return this._div;
-		};
-
-		// method that we will use to update the control based on feature properties passed
-		info.update = function (props) {
-			this._div.innerHTML = '<h4>Property Elevation</h4>' +  (props ?
-				'<b>' + props.FFE_USE.toString() + '</b><br />'
-				: "Feet Above MSL");
-		};
-
-		info.addTo(map);
-
-		var slideOutput;
-		var slider = document.getElementById("myRange");
-		var output = document.getElementById("demo");
-
-		// Update the current slider value (each time you drag the slider handle)
-		slider.oninput = function() {
-			slideOutput = this.value;
-		};
-		//slider.addTo(map);
-
-		*/
 	</script>
 </body>
 </html>
